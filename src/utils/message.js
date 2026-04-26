@@ -77,8 +77,8 @@ function createMessage(type, content, priority, location, category = "general") 
   const finalLocation = location
     ? { x: location.x, y: location.y }
     : {
-      x: Math.floor(Math.random() * 10),
-      y: Math.floor(Math.random() * 10),
+      x: Math.floor(Math.random() * 11),
+      y: Math.floor(Math.random() * 11),
     };
 
   return {

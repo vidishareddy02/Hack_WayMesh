@@ -29,8 +29,11 @@ function App() {
   const [showMiniMap, setShowMiniMap] = useState(false);
 
 
-  // ── Device location (hardcoded for stable demo) ──
-  const deviceLocation = { x: 3, y: 3 };
+  // ── Device location (random per device, stable across renders) ──
+  const [deviceLocation] = useState(() => ({
+    x: Math.floor(Math.random() * 11),
+    y: Math.floor(Math.random() * 11),
+  }));
 
   // ── Auto-categorize ──
   function autoCategorize(text) {
@@ -70,10 +73,10 @@ function App() {
     let stored = getMessages() || [];
     if (stored.length === 0) {
       const samples = [
-        createMessage("alert", "Need Doctor 🚑", 5, { x: 2, y: 4 }),
-        createMessage("alert", "Fire Alert 🔥", 5, { x: 3, y: 6 }),
-        createMessage("alert", "Shelter Available 🏠", 3, { x: 3, y: 2 }),
-        createMessage("alert", "Transport Available 🚗", 3, { x: 5, y: 3 }),
+        createMessage("alert", "Need Doctor 🚑", 5, deviceLocation),
+        createMessage("alert", "Fire Alert 🔥", 5, deviceLocation),
+        createMessage("alert", "Shelter Available 🏠", 3, deviceLocation),
+        createMessage("alert", "Transport Available 🚗", 3, deviceLocation),
       ];
       samples.forEach((msg) => {
         msg.category = autoCategorize(msg.content);
