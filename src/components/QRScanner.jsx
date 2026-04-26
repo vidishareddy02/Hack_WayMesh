@@ -20,12 +20,23 @@ function QRScanner({ setMessages, onSyncComplete }) {
   // 🔥 Handle a successful QR scan
   function handleScan(decodedText) {
     try {
-      if (!decodedText.startsWith("WAYMESH:")) return;
+      console.log("[QRScanner] Raw scanned text:", decodedText);
 
-      const clean = decodedText.replace("WAYMESH:", "");
+      if (!decodedText.startsWith("WAYMESH:")) {
+        console.log("[QRScanner] Skipping — not a WAYMESH payload");
+        return;
+      }
+
+      const clean = decodedText.slice("WAYMESH:".length);
       const data = JSON.parse(clean);
 
-      if (data.type !== "WAYMESH_BUNDLE") return;
+      console.log("[QRScanner] Parsed payload:", data);
+      console.log("[QRScanner] Alert count:", (data.data || []).length);
+
+      if (data.type !== "WAYMESH_BUNDLE") {
+        console.log("[QRScanner] Skipping — unexpected bundle type:", data.type);
+        return;
+      }
 
       // Store scanned data temporarily
       setScannedData(data);
@@ -55,15 +66,17 @@ function QRScanner({ setMessages, onSyncComplete }) {
       id: m.id || Date.now().toString() + Math.random().toString(36).substring(2),
       type: "alert",
       content: m.c || "Unknown",
-      priority: m.p || 3,
+      priority: m.p ?? 3,
       timestamp: Date.now(),
       ttl: 86400000,
       confidence: 0.5,
-      location: { x: m.x || 0, y: m.y || 0 },
+      location: { x: m.x ?? 0, y: m.y ?? 0 },
       category: m.cat || "other",
       lastShared: Date.now(),
       radius: 2,
     }));
+
+    console.log("[QRScanner] Incoming messages to merge:", incoming.length, incoming);
 
     // Load fresh from storage — single source of truth
     let existing = getMessages() || [];

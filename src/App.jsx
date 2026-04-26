@@ -189,7 +189,7 @@ function App() {
                 <button className="btn btn-success" style={{ width: "100%", justifyContent: "center" }} onClick={() => {
                   if (!createInput.trim()) return;
                   const priority = autoPriority(createInput.trim());
-                  const msg = createMessage("alert", createInput.trim(), priority, null);
+                  const msg = createMessage("alert", createInput.trim(), priority, deviceLocation);
                   msg.category = autoCategorize(msg.content);
                   addMessage(msg);
                   setMessages(getMessages() || []);

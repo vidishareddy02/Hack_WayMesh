@@ -3,9 +3,10 @@ import { getMessages } from "../utils/storage";
 
 // ── Privacy Filter Helpers ──
 
-function isWithinRadius(alert, user, radius = 3) {
-  const dx = (alert.location?.x || 0) - user.x;
-  const dy = (alert.location?.y || 0) - user.y;
+function isWithinRadius(alert, user, radius = 5) {
+  if (!alert.location) return true; // no location → include by default
+  const dx = (alert.location.x ?? 0) - user.x;
+  const dy = (alert.location.y ?? 0) - user.y;
   return Math.sqrt(dx * dx + dy * dy) <= radius;
 }
 
@@ -21,21 +22,25 @@ function isImportant(alert) {
 function QR({ userLocation = { x: 3, y: 3 }, emergencyMode = false }) {
   const allMessages = getMessages() || [];
 
+  console.log("[QR] All messages from storage:", allMessages.length, allMessages);
+
   // Apply privacy filter pipeline (or bypass in emergency)
   const filtered = emergencyMode
     ? allMessages
     : allMessages
-        .filter((m) => isWithinRadius(m, userLocation, 3))
+        .filter((m) => isWithinRadius(m, userLocation, 5))
         .filter((m) => isRecent(m))
         .filter((m) => isImportant(m));
+
+  console.log("[QR] After privacy filter:", filtered.length, "of", allMessages.length);
 
   // Compact format — short keys for QR density
   const compactMessages = filtered.map((m) => ({
     id: m.id,
     c: m.content,
     p: m.priority,
-    x: m.location?.x || 0,
-    y: m.location?.y || 0,
+    x: m.location?.x ?? 0,
+    y: m.location?.y ?? 0,
     cat: m.category || "other",
   }));
 
@@ -45,6 +50,7 @@ function QR({ userLocation = { x: 3, y: 3 }, emergencyMode = false }) {
   };
 
   const qrValue = "WAYMESH:" + JSON.stringify(qrPayload);
+  console.log("[QR] Final payload:", compactMessages.length, "alerts, QR length:", qrValue.length);
 
   return (
     <div
