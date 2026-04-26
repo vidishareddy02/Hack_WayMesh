@@ -35,6 +35,15 @@ function App() {
     y: Math.floor(Math.random() * 11),
   }));
 
+  // ── Nearby location helper (±1 offset, clamped to grid) ──
+  function getNearbyLocation(base) {
+    const offset = () => Math.floor(Math.random() * 3) - 1; // -1, 0, +1
+    return {
+      x: Math.max(0, Math.min(10, base.x + offset())),
+      y: Math.max(0, Math.min(10, base.y + offset())),
+    };
+  }
+
   // ── Auto-categorize ──
   function autoCategorize(text) {
     const t = text.toLowerCase();
@@ -73,10 +82,10 @@ function App() {
     let stored = getMessages() || [];
     if (stored.length === 0) {
       const samples = [
-        createMessage("alert", "Need Doctor 🚑", 5, deviceLocation),
-        createMessage("alert", "Fire Alert 🔥", 5, deviceLocation),
-        createMessage("alert", "Shelter Available 🏠", 3, deviceLocation),
-        createMessage("alert", "Transport Available 🚗", 3, deviceLocation),
+        createMessage("alert", "Need Doctor 🚑", 5, getNearbyLocation(deviceLocation)),
+        createMessage("alert", "Fire Alert 🔥", 5, getNearbyLocation(deviceLocation)),
+        createMessage("alert", "Shelter Available 🏠", 3, getNearbyLocation(deviceLocation)),
+        createMessage("alert", "Transport Available 🚗", 3, getNearbyLocation(deviceLocation)),
       ];
       samples.forEach((msg) => {
         msg.category = autoCategorize(msg.content);
@@ -192,7 +201,7 @@ function App() {
                 <button className="btn btn-success" style={{ width: "100%", justifyContent: "center" }} onClick={() => {
                   if (!createInput.trim()) return;
                   const priority = autoPriority(createInput.trim());
-                  const msg = createMessage("alert", createInput.trim(), priority, deviceLocation);
+                  const msg = createMessage("alert", createInput.trim(), priority, getNearbyLocation(deviceLocation));
                   msg.category = autoCategorize(msg.content);
                   addMessage(msg);
                   setMessages(getMessages() || []);
